@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Notes</title>
+    <link href="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-2xl">
+        <h1 class="text-3xl font-bold mb-6 text-center text-gray-700">Task Notes</h1>
+
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">Add a New Task</h2>
+            <div class="flex">
+                <input type="text" id="taskInput" class="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your task...">
+                <button onclick="addTask()" class="bg-blue-500 text-white p-2 rounded-r-md hover:bg-blue-600 transition-colors">Add Task</button>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Current Tasks</h2>
+            <ul id="taskList" class="space-y-3">
+                <!-- Tasks will be dynamically inserted here -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function fetchTasks() {
+            try {
+                const response = await fetch('/tasks');
+                const tasks = await response.json();
+                const taskList = document.getElementById('taskList');
+                taskList.innerHTML = '';
+                if (tasks.length === 0) {
+                    taskList.innerHTML = '<li class="text-gray-500">No tasks yet. Add one above!</li>';
+                } else {
+                    tasks.forEach(task => {
+                        const li = document.createElement('li');
+                        li.textContent = task.text;
+                        li.className = 'p-3 bg-gray-50 rounded-md border border-gray-200';
+                        taskList.appendChild(li);
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching tasks:', error);
+            }
+        }
+
+        async function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const text = taskInput.value.trim();
+            if (text === '') {
+                alert('Please enter a task.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/tasks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text }),
+                });
+
+                if (response.ok) {
+                    taskInput.value = '';
+                    fetchTasks(); // Refresh the list
+                } else {
+                    alert('Failed to add task.');
+                }
+            } catch (error) {
+                console.error('Error adding task:', error);
+            }
+        }
+
+        // Fetch tasks on initial load
+        document.addEventListener('DOMContentLoaded', fetchTasks);
+    </script>
+</body>
+</html>
