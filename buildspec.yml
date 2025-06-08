@@ -9,7 +9,7 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t 043503528386.dkr.ecr.us-east-1.amazonaws.com/todolist .
+      - docker build -t 043503528386.dkr.ecr.us-east-1.amazonaws.com/todolist:latest .
   post_build:
     commands:
       - echo Build completed on `date`
